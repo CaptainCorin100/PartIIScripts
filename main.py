@@ -3,6 +3,7 @@ from PIL import Image
 import tkinter as tk
 from tkinter import filedialog
 import numpy as np
+import matplotlib.pyplot as plt
 
 kernel_size = (15,15)
 kernel_elem = cv2.getStructuringElement(cv2.MORPH_RECT, kernel_size)
@@ -64,12 +65,20 @@ def analyse_line_thickness():
         [pt1, pt2] = converted_line_points(vx, vy, x, y)
         cv2.line (drawing, pt1, pt2, green, 5)
 
-    print([np.arctan2(line_points[0][1], line_points[0][0]),np.arctan2(line_points[1][1], line_points[1][0])])
     average_gradient = np.tan(np.average([np.arctan2(line_points[0][1], line_points[0][0]),np.arctan2(line_points[1][1], line_points[1][0])]))
+    reciprocal_gradient = -1 * 1/average_gradient
     average_coords_x = np.average([line_points[0][2], line_points[1][2]])
     average_coords_y = np.average([line_points[0][3], line_points[1][3]])
     [pt1, pt2] = converted_line_points(1, average_gradient, average_coords_x, average_coords_y)
     cv2.line (drawing, pt1, pt2, green, 5)
+
+    distance_bin_0 = [None]*len(line_contours[0])
+    distance_bin_1 = [None]*len(line_contours[1])
+    for i,c in enumerate(line_contours[0]):
+        distance_bin_0[i] = convert_pixel_to_micron(cv2.pointPolygonTest(line_contours[1], (int(c[0][0]), int(c[0][1])), True))
+    for i,c in enumerate(line_contours[1]):
+        distance_bin_1[i] = convert_pixel_to_micron(cv2.pointPolygonTest(line_contours[0], (int(c[0][0]), int(c[0][1])), True))
+
     
     cv2.drawContours(drawing, line_contours, -1, green, 2, cv2.LINE_AA)
     
@@ -77,9 +86,21 @@ def analyse_line_thickness():
 
     resized = cv2.resize(drawing, (1228, 921))
     cv2.imshow("Binarised Image", resized)
+    
+    fig, ax = plt.subplots(1, 2)
+    ax[0].hist(distance_bin_0, bins=30)
+    ax[1].hist(distance_bin_1, bins=30)
+    plt.xlabel("Thickness (um)")
+    plt.ylabel("Frequency")
+    plt.suptitle("Line Thicknesses")
+    plt.show()
+
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+def convert_pixel_to_micron(value):
+    #Currently hardcoded for 50X image, based on what Affinity reports this to be (100 um = 1975.3 px). Probably not accurate
+    return abs(int(value*100/1975.3))
 
 if __name__ == "__main__":
     init()
