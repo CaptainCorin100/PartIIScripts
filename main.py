@@ -87,20 +87,22 @@ def analyse_line_thickness():
     resized = cv2.resize(drawing, (1228, 921))
     cv2.imshow("Binarised Image", resized)
     
-    fig, ax = plt.subplots(1, 2)
-    ax[0].hist(distance_bin_0, bins=30)
-    ax[1].hist(distance_bin_1, bins=30)
+    combined_distances = distance_bin_0 + distance_bin_1
+    print("Finger width has mean of {} um and standard deviation of {} um".format(np.mean(combined_distances), np.std(combined_distances)))
+    plt.hist(combined_distances, bins=50)
     plt.xlabel("Thickness (um)")
     plt.ylabel("Frequency")
     plt.suptitle("Line Thicknesses")
+    plt.axvline(np.mean(combined_distances), color="k")
     plt.show()
+    
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
 def convert_pixel_to_micron(value):
     #Currently hardcoded for 50X image, based on what Affinity reports this to be (100 um = 1975.3 px). Probably not accurate
-    return abs(int(value*100/1975.3))
+    return abs((value*100/1975.3))
 
 if __name__ == "__main__":
     init()
