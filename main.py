@@ -5,6 +5,9 @@ from tkinter import filedialog
 import numpy as np
 import matplotlib.pyplot as plt
 
+dropdown_magnifications = ["50X", "10X"]
+selected_mag = None
+
 kernel_size = (15,15)
 kernel_elem = cv2.getStructuringElement(cv2.MORPH_RECT, kernel_size)
 
@@ -15,12 +18,21 @@ sampling_rate = 2
 green = (0,255,0)
 
 def init():
+    global selected_mag
     root = tk.Tk()
     root.title("Part II Scripts")
-    root.geometry("350x200")
+    root.geometry("350x300")
+
+    selected_mag = tk.StringVar(root)
+    selected_mag.set("50X")
+    mag_dropdown = tk.OptionMenu(root, selected_mag, *dropdown_magnifications)
+    mag_dropdown.pack(padx=20, pady=20)
 
     line_button = tk.Button(root,text="Analyse Line Thickness", command=analyse_line_thickness, anchor="center")
     line_button.pack(padx=20,pady=20)
+
+    void_button = tk.Button(root,text="Analyse Void Fraction", command=analyse_void_fraction, anchor="center")
+    void_button.pack(padx=20,pady=20)
     
     root.mainloop()
 
@@ -89,7 +101,7 @@ def analyse_line_thickness():
     
     combined_distances = distance_bin_0 + distance_bin_1
     print("Finger width has mean of {} um and standard deviation of {} um".format(np.mean(combined_distances), np.std(combined_distances)))
-    plt.hist(combined_distances, bins=50)
+    plt.hist(combined_distances, bins=50, density=True)
     plt.xlabel("Thickness (um)")
     plt.ylabel("Frequency")
     plt.suptitle("Line Thicknesses")
@@ -100,9 +112,45 @@ def analyse_line_thickness():
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+def analyse_void_fraction():
+    file_path = filedialog.askopenfilename(filetypes=[("JPEG images", "*.jpg")])
+    print(file_path)
+
+    #Turn image into black and white
+    img = cv2.imread(file_path)
+    cv2.waitKey(0)
+    grey_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    blurred_img = cv2.blur(grey_img, (3,3))
+    th, threshold_img = cv2.threshold(blurred_img, threshold_cutoff, 255, cv2.THRESH_OTSU)
+
+    #Generate blank dataset for black fraction
+    point_count = [None] * threshold_img.shape[0]
+
+    for y in range(threshold_img.shape[0]):
+        counter = 0
+        for x in range(threshold_img.shape[1]):
+            if threshold_img[y,x] == 0:
+                counter += 1
+        point_count[y] = counter * 100 / threshold_img.shape[1]
+
+    cv2.waitKey(0)
+
+    resized = cv2.resize(threshold_img, (1228, 921))
+    cv2.imshow("Binarised Image", resized)
+
+    point_indices = range(len(point_count), 0, -1)
+
+    plt.scatter(point_count, point_indices)
+    plt.ylabel("Image Position")
+    plt.xlabel("Void Fraction (%)")
+    plt.show()
+
 def convert_pixel_to_micron(value):
     #Currently hardcoded for 50X image, based on what Affinity reports this to be (100 um = 1975.3 px). Probably not accurate
-    return abs((value*100/1975.3))
+    if selected_mag.get() == "50X":
+        return abs((value*100/1975.3))
+    elif selected_mag.get() == "10X":
+        return abs((value*100/386.4))
 
 if __name__ == "__main__":
     init()
