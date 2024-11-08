@@ -61,6 +61,7 @@ def analyse_line_thickness():
 
     drawing = img.copy()
 
+    #Define function to change between coordinate measuring system
     def converted_line_points (vx, vy, x, y):
         lefty = int((-x*vy/vx) + y)
         righty = int(((img.shape[1]-x)*vy/vx) + y)
@@ -70,6 +71,7 @@ def analyse_line_thickness():
     #boundRect = [None]*len(contours)
     line_points = [None]*len(contours)
 
+    #Calculate equations of lines made by average of contours
     for i,c in enumerate(line_contours):
         #contours_poly[i] = cv2.approxPolyDP(c,100,True)
         #boundRect[i] = cv2.boundingRect(contours_poly[i])
@@ -78,6 +80,7 @@ def analyse_line_thickness():
         [pt1, pt2] = converted_line_points(vx, vy, x, y)
         cv2.line (drawing, pt1, pt2, green, 5)
 
+    #Calculate equation of average line between two other lines
     average_gradient = np.tan(np.average([np.arctan2(line_points[0][1], line_points[0][0]),np.arctan2(line_points[1][1], line_points[1][0])]))
     reciprocal_gradient = -1 * 1/average_gradient
     average_coords_x = np.average([line_points[0][2], line_points[1][2]])
@@ -85,6 +88,7 @@ def analyse_line_thickness():
     [pt1, pt2] = converted_line_points(1, average_gradient, average_coords_x, average_coords_y)
     cv2.line (drawing, pt1, pt2, green, 5)
 
+    #Calculate shortest distance to other contour from each point on contour
     distance_bin_0 = [None]*len(line_contours[0])
     distance_bin_1 = [None]*len(line_contours[1])
     for i,c in enumerate(line_contours[0]):
@@ -92,14 +96,15 @@ def analyse_line_thickness():
     for i,c in enumerate(line_contours[1]):
         distance_bin_1[i] = convert_pixel_to_micron(cv2.pointPolygonTest(line_contours[0], (int(c[0][0]), int(c[0][1])), True))
 
-    
+    #Plot contours on drawing
     cv2.drawContours(drawing, line_contours, -1, green, 2, cv2.LINE_AA)
-    
     cv2.waitKey(0)
 
+    #Resize and draw image
     resized = imutils.resize(drawing, width=1228)     #cv2.resize(drawing, (1228, 921))
     cv2.imshow("Binarised Image", resized)
     
+    #Produce histogram of calculated finger widths at points
     combined_distances = distance_bin_0 + distance_bin_1
     print("Finger width has mean of {} um and standard deviation of {} um".format(np.mean(combined_distances), np.std(combined_distances)))
     plt.hist(combined_distances, bins=50, density=True)
