@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter import filedialog
 import numpy as np
 import matplotlib.pyplot as plt
+import imutils
 
 dropdown_magnifications = ["50X", "10X"]
 selected_mag = None
@@ -96,7 +97,7 @@ def analyse_line_thickness():
     
     cv2.waitKey(0)
 
-    resized = cv2.resize(drawing, (1228, 921))
+    resized = imutils.resize(drawing, width=1228)     #cv2.resize(drawing, (1228, 921))
     cv2.imshow("Binarised Image", resized)
     
     combined_distances = distance_bin_0 + distance_bin_1
@@ -158,14 +159,18 @@ def analyse_void_fraction():
 
     cv2.waitKey(0)
 
-    resized = cv2.resize(keypointed_img, (1228, 921))
+    resized = imutils.resize(keypointed_img, width=1228) #cv2.resize(keypointed_img, (1228, 921))
     cv2.imshow("Binarised Image", resized)
 
     point_indices = range(len(point_count), 0, -1)
 
     plt.scatter(point_count, point_indices)
+    plt.imshow(imutils.opencv2matplotlib(resized))
     plt.ylabel("Image Position")
     plt.xlabel("Void Fraction (%)")
+    plt.xlim(0,100)
+    plt.rcParams['font.family'] = 'sans-serif'
+    plt.rcParams['font.sans-serif'] = ['Arial']
     plt.show()
 
 def convert_pixel_to_micron(value):
