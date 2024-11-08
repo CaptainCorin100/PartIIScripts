@@ -114,6 +114,8 @@ def analyse_line_thickness():
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+
+
 def analyse_void_fraction():
     file_path = filedialog.askopenfilename(filetypes=[("JPEG images", "*.jpg")])
     print(file_path)
@@ -137,9 +139,26 @@ def analyse_void_fraction():
 
     print("Total black pixel fraction = {} %".format( (1 - (cv2.countNonZero(threshold_img) / (threshold_img.shape[0] * threshold_img.shape[1])))*100 ))
 
+    params = cv2.SimpleBlobDetector().Params()
+    params.minThreshold = 10
+    params.maxThreshold = 200
+    params.filterByArea = True
+    params.minArea = 100
+    params.filterByCircularity = True
+    params.minCircularity = 0.54
+    params.maxCircularity = 1
+    params.filterByConvexity = False
+    params.filterByInertia = False
+
+    detector = cv2.SimpleBlobDetector().create(params)
+    inverted_img = np.invert(grey_img)
+    keypoints = detector.detect(inverted_img)
+
+    keypointed_img = cv2.drawKeypoints(inverted_img, keypoints, np.array([]), green, cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+
     cv2.waitKey(0)
 
-    resized = cv2.resize(threshold_img, (1228, 921))
+    resized = cv2.resize(keypointed_img, (1228, 921))
     cv2.imshow("Binarised Image", resized)
 
     point_indices = range(len(point_count), 0, -1)
