@@ -102,7 +102,8 @@ def analyse_line_thickness():
 
     #Resize and draw image
     resized = imutils.resize(drawing, width=1228)     #cv2.resize(drawing, (1228, 921))
-    cv2.imshow("Binarised Image", resized)
+    rotated = imutils.rotate(resized, angle=np.rad2deg(np.arctan(average_gradient)))
+    cv2.imshow("Binarised Image", rotated)
     
     #Produce histogram of calculated finger widths at points
     combined_distances = distance_bin_0 + distance_bin_1
