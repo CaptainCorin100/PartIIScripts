@@ -104,6 +104,8 @@ def analyse_line_thickness():
     plt.hist(combined_distances, bins=50, density=True)
     plt.xlabel("Thickness (um)")
     plt.ylabel("Frequency")
+    plt.rcParams['font.family'] = 'sans-serif'
+    plt.rcParams['font.sans-serif'] = ['Arial']
     plt.suptitle("Line Thicknesses")
     plt.axvline(np.mean(combined_distances), color="k")
     plt.show()
@@ -132,6 +134,8 @@ def analyse_void_fraction():
             if threshold_img[y,x] == 0:
                 counter += 1
         point_count[y] = counter * 100 / threshold_img.shape[1]
+
+    print("Total black pixel fraction = {} %".format( (1 - (cv2.countNonZero(threshold_img) / (threshold_img.shape[0] * threshold_img.shape[1])))*100 ))
 
     cv2.waitKey(0)
 
