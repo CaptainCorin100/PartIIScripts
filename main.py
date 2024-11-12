@@ -37,6 +37,8 @@ def init():
     
     root.mainloop()
 
+
+
 def analyse_line_thickness():
     #Load image from file
     file_path = filedialog.askopenfilename(filetypes=[("JPEG images", "*.jpg")])
@@ -103,17 +105,20 @@ def analyse_line_thickness():
     #Resize and draw image
     resized = imutils.resize(drawing, width=1228)     #cv2.resize(drawing, (1228, 921))
     rotated = imutils.rotate(resized, angle=np.rad2deg(np.arctan(average_gradient)))
-    cv2.imshow("Binarised Image", rotated)
+    cv2.imshow("Binarised Image", resized)
     
     #Produce histogram of calculated finger widths at points
     combined_distances = distance_bin_0 + distance_bin_1
     print("Finger width has mean of {} um and standard deviation of {} um".format(np.mean(combined_distances), np.std(combined_distances)))
     plt.hist(combined_distances, bins=50, density=True)
-    plt.xlabel("Thickness (um)")
-    plt.ylabel("Frequency")
+    plt.xlabel("Thickness (um)", fontsize=20)
+    plt.ylabel("Frequency", fontsize=20)
+    plt.xticks(fontsize=20)
+    plt.yticks(fontsize=20)
     plt.rcParams['font.family'] = 'sans-serif'
     plt.rcParams['font.sans-serif'] = ['Arial']
-    plt.suptitle("Line Thicknesses")
+    plt.tight_layout()
+    #plt.suptitle("Line Thicknesses")
     plt.axvline(np.mean(combined_distances), color="k")
     plt.show()
     
@@ -133,6 +138,7 @@ def analyse_void_fraction():
     grey_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blurred_img = cv2.blur(grey_img, (3,3))
     th, threshold_img = cv2.threshold(blurred_img, threshold_cutoff, 255, cv2.THRESH_OTSU)
+    coloured_img = cv2.multiply(threshold_img, (1,0.4,0.1,1))
 
     #Generate blank dataset for black fraction
     point_count = [None] * threshold_img.shape[0]
@@ -146,6 +152,7 @@ def analyse_void_fraction():
 
     print("Total black pixel fraction = {} %".format( (1 - (cv2.countNonZero(threshold_img) / (threshold_img.shape[0] * threshold_img.shape[1])))*100 ))
 
+    #Create parameters for blob detection
     params = cv2.SimpleBlobDetector().Params()
     params.minThreshold = 10
     params.maxThreshold = 200
@@ -164,23 +171,42 @@ def analyse_void_fraction():
     keypointed_img = cv2.drawKeypoints(inverted_img, keypoints, np.array([]), green, cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 
     cv2.waitKey(0)
-
-    resized = imutils.resize(keypointed_img, width=1228) #cv2.resize(keypointed_img, (1228, 921))
+    resized = imutils.resize(coloured_img, width=1228) #cv2.resize(keypointed_img, (1228, 921))
     cv2.imshow("Binarised Image", resized)
 
     point_indices = range(len(point_count), 0, -1)
 
+    #fig = plt.figure()
     plt.scatter(point_count, point_indices)
-    plt.imshow(imutils.opencv2matplotlib(resized))
-    plt.ylabel("Image Position")
-    plt.xlabel("Void Fraction (%)")
-    plt.xlim(0,100)
+    # plt.imshow(imutils.opencv2matplotlib(resized))
+    plt.ylabel("Finger Height (px)", fontsize=20)
+    plt.xlabel("Void Fraction (%)", fontsize=20)
+    plt.xticks(fontsize=20)
+    plt.yticks(fontsize=20)
+    plt.xlim(0,45)
     plt.rcParams['font.family'] = 'sans-serif'
     plt.rcParams['font.sans-serif'] = ['Arial']
+    plt.tight_layout()
+
+    #Change plot axes
+    ax = plt.gca()
+    ax.spines["right"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+
+    plt.savefig("temp.png", transparent=True)
     plt.show()
 
+
+
+def calculate_void_fraction (numbers, radii):
+    cubed_r = [r**3 for r in radii]
+    r_n_product = np.array(numbers) * np.array(cubed_r)
+    total_vol = np.sum(r_n_product) * np.pi * 4/3
+
+
+
 def convert_pixel_to_micron(value):
-    #Currently hardcoded for 50X image, based on what Affinity reports this to be (100 um = 1975.3 px). Probably not accurate
+    #Hardcoded for 50X image, based on what Affinity reports this to be (100 um = 1975.3 px). Probably not accurate
     if selected_mag.get() == "50X":
         return abs((value*100/1975.3))
     elif selected_mag.get() == "10X":
