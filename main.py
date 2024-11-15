@@ -203,6 +203,9 @@ def calculate_void_fraction (numbers, radii):
     r_n_product = np.array(numbers) * np.array(cubed_r)
     total_vol = np.sum(r_n_product) * np.pi * 4/3
 
+    def hypothetical_sphere_void_fraction (R, r):
+        angle = np.arctan(r/(R+r))
+
 
 
 def convert_pixel_to_micron(value):
