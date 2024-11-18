@@ -1,5 +1,5 @@
 import cv2
-from PIL import Image
+from PIL import Image, ImageTk
 import tkinter as tk
 from tkinter import filedialog
 import numpy as np
@@ -18,11 +18,14 @@ sampling_rate = 2
 
 green = (0,255,0)
 
+root = None
+
 def init():
-    global selected_mag
+    global selected_mag, root
     root = tk.Tk()
     root.title("Part II Scripts")
-    root.geometry("350x300")
+    root.geometry("1200x600")
+    root.resizable(width=True,height=True)
 
     selected_mag = tk.StringVar(root)
     selected_mag.set("50X")
@@ -103,9 +106,14 @@ def analyse_line_thickness():
     cv2.waitKey(0)
 
     #Resize and draw image
-    resized = imutils.resize(drawing, width=1228)     #cv2.resize(drawing, (1228, 921))
+    resized = imutils.resize(drawing, width=600)     #cv2.resize(drawing, (1228, 921))
     rotated = imutils.rotate(resized, angle=np.rad2deg(np.arctan(average_gradient)))
-    cv2.imshow("Binarised Image", resized)
+    #cv2.imshow("Binarised Image", resized)
+    bl,gr,rd=cv2.split(resized)
+    im = Image.fromarray(cv2.merge((rd,gr,bl)))
+    imtk = ImageTk.PhotoImage(image=im)
+    tk.Label(root, image=imtk).pack()
+    root.mainloop()
     
     #Produce histogram of calculated finger widths at points
     combined_distances = distance_bin_0 + distance_bin_1
@@ -121,10 +129,9 @@ def analyse_line_thickness():
     #plt.suptitle("Line Thicknesses")
     plt.axvline(np.mean(combined_distances), color="k")
     plt.show()
-    
 
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    #cv2.waitKey(0)
+    #cv2.destroyAllWindows()
 
 
 
