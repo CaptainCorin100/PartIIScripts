@@ -19,6 +19,7 @@ sampling_rate = 2
 green = (0,255,0)
 
 root = None
+first_fig = None
 
 def init():
     global selected_mag, root
@@ -112,7 +113,9 @@ def analyse_line_thickness():
     bl,gr,rd=cv2.split(resized)
     im = Image.fromarray(cv2.merge((rd,gr,bl)))
     imtk = ImageTk.PhotoImage(image=im)
-    tk.Label(root, image=imtk).pack()
+    
+    first_fig = tk.Label(root, image=imtk)
+    first_fig.pack()
     root.mainloop()
     
     #Produce histogram of calculated finger widths at points
