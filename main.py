@@ -5,6 +5,7 @@ from tkinter import filedialog
 import numpy as np
 import matplotlib.pyplot as plt
 import imutils
+import x3p
 
 dropdown_magnifications = ["50X", "10X"]
 selected_mag = None
@@ -38,6 +39,9 @@ def init():
 
     void_button = tk.Button(root,text="Analyse Void Fraction", command=analyse_void_fraction, anchor="center")
     void_button.pack(padx=20,pady=20)
+
+    profile_button = tk.Button(root,text="Analyse Finger Profile", command=analyse_finger_profile, anchor="center")
+    profile_button.pack(padx=20,pady=20)
     
     root.mainloop()
 
@@ -206,6 +210,10 @@ def analyse_void_fraction():
     plt.savefig("temp.png", transparent=True)
     plt.show()
 
+def analyse_finger_profile():
+    file_path = filedialog.askopenfilename(filetypes=[("Heightmap Data", "*.x3p")])
+
+    x3pFile = x3p.X3Pfile(file_path)
 
 
 def calculate_void_fraction (numbers, radii):
@@ -215,7 +223,7 @@ def calculate_void_fraction (numbers, radii):
 
     def hypothetical_sphere_void_fraction (R, r):
         angle = np.arctan(r/(R+r))
-
+    
 
 
 def convert_pixel_to_micron(value):
