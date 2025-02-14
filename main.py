@@ -6,6 +6,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import imutils
 import x3p
+import vtk
+import networkx as nx
 
 dropdown_magnifications = ["50X", "10X"]
 selected_mag = None
@@ -42,6 +44,9 @@ def init():
 
     profile_button = tk.Button(root,text="Analyse Finger Profile", command=analyse_finger_profile, anchor="center")
     profile_button.pack(padx=20,pady=20)
+
+    rn_button = tk.Button(root,text="Analyse DEM Resistance", command=analyse_dem_resistance, anchor="center")
+    rn_button.pack(padx=20,pady=20)
     
     root.mainloop()
 
@@ -212,8 +217,48 @@ def analyse_void_fraction():
 
 def analyse_finger_profile():
     file_path = filedialog.askopenfilename(filetypes=[("Heightmap Data", "*.x3p")])
-
+    print(file_path)
     x3pFile = x3p.X3Pfile(file_path)
+
+    # plt.pcolormesh(x3pFile[:,:,0])
+    # plt.show()
+
+def analyse_dem_resistance():
+    file_path = filedialog.askopenfilename(filetypes=[("VTK", "*.vtk")])
+    reader = vtk.vtkPolyDataReader()
+    reader.SetFileName(file_path)
+    reader.Update()
+
+    poly_data = reader.GetOutput()
+    point_list = poly_data.GetPoints()
+    radius_list = poly_data.GetPointData().GetArray("radius")
+
+    point_array = np.array([point_list.GetPoint(i) for i in range(poly_data.GetNumberOfPoints())])
+    radius_array = np.array([radius_list.GetValue(i) for i in range(poly_data.GetNumberOfPoints())])
+
+    contact_factor = 1.1
+
+    print(len(radius_array))
+
+    G = nx.Graph()
+
+    for i in range(len(point_array)):
+        G.add_node(i, position=point_array[i], radius=radius_array[i])
+        
+        if i % 100 == 0:
+            print(i)
+
+        for j in range(i):
+            dist = np.linalg.norm(point_array[i] - point_array[j])
+
+            contact_dist = contact_factor * (radius_array[i] + radius_array[j])
+
+            if dist < contact_dist:
+                G.add_edge(i, j, resistance=dist)
+    
+    #nx.draw(G)
+
+
 
 
 def calculate_void_fraction (numbers, radii):
