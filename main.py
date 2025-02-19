@@ -9,8 +9,9 @@ import x3p
 import vtk
 import networkx as nx
 
-dropdown_magnifications = ["50X", "10X"]
+dropdown_magnifications = ["50X", "10X", "Custom pixel count for 10 um"]
 selected_mag = None
+mag_text = None
 
 kernel_size = (15,15)
 kernel_elem = cv2.getStructuringElement(cv2.MORPH_RECT, kernel_size)
@@ -25,7 +26,7 @@ root = None
 first_fig = None
 
 def init():
-    global selected_mag, root
+    global selected_mag, root, mag_text
     root = tk.Tk()
     root.title("Part II Scripts")
     root.geometry("1200x600")
@@ -35,6 +36,9 @@ def init():
     selected_mag.set("50X")
     mag_dropdown = tk.OptionMenu(root, selected_mag, *dropdown_magnifications)
     mag_dropdown.pack(padx=20, pady=20)
+
+    mag_text = tk.Text(root, height=5, width=40)
+    mag_text.pack(padx=20, pady=20)
 
     line_button = tk.Button(root,text="Analyse Line Thickness", command=analyse_line_thickness, anchor="center")
     line_button.pack(padx=20,pady=20)
@@ -59,7 +63,7 @@ def analyse_line_thickness():
 
     #Turn image into black and white
     img = cv2.imread(file_path)
-    cv2.waitKey(0)
+
     grey_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blurred_img = cv2.blur(grey_img, (3,3))
     th, threshold_img = cv2.threshold(blurred_img, threshold_cutoff, 255, cv2.THRESH_OTSU)
@@ -113,19 +117,17 @@ def analyse_line_thickness():
 
     #Plot contours on drawing
     cv2.drawContours(drawing, line_contours, -1, green, 2, cv2.LINE_AA)
-    cv2.waitKey(0)
 
     #Resize and draw image
     resized = imutils.resize(drawing, width=600)     #cv2.resize(drawing, (1228, 921))
     rotated = imutils.rotate(resized, angle=np.rad2deg(np.arctan(average_gradient)))
-    #cv2.imshow("Binarised Image", resized)
+    cv2.imshow("Contoured Image", resized)
+    cv2.imshow("Threshold Image", closed_edges)
     bl,gr,rd=cv2.split(resized)
     im = Image.fromarray(cv2.merge((rd,gr,bl)))
     imtk = ImageTk.PhotoImage(image=im)
     
-    first_fig = tk.Label(root, image=imtk)
-    first_fig.pack()
-    root.mainloop()
+    
     
     #Produce histogram of calculated finger widths at points
     combined_distances = distance_bin_0 + distance_bin_1
@@ -142,8 +144,12 @@ def analyse_line_thickness():
     plt.axvline(np.mean(combined_distances), color="k")
     plt.show()
 
-    #cv2.waitKey(0)
-    #cv2.destroyAllWindows()
+    first_fig = tk.Label(root, image=imtk)
+    first_fig.pack()
+    root.mainloop()
+
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 
 
@@ -235,7 +241,7 @@ def analyse_dem_resistance():
 
     point_array = np.array([point_list.GetPoint(i) for i in range(poly_data.GetNumberOfPoints())])
     radius_array = np.array([radius_list.GetValue(i) for i in range(poly_data.GetNumberOfPoints())])
-
+    print(point_array[0])
     contact_factor = 1.1
 
     print(len(radius_array))
@@ -277,6 +283,9 @@ def convert_pixel_to_micron(value):
         return abs((value*100/1975.3))
     elif selected_mag.get() == "10X":
         return abs((value*100/386.4))
+    elif selected_mag.get() == "Custom pixel count for 10 um":
+        print(float(mag_text.get("1.0", "end")))
+        return abs(value*10/float(mag_text.get("1.0", "end")))
 
 if __name__ == "__main__":
     init()
