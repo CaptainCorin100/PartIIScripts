@@ -35,22 +35,22 @@ def init():
     selected_mag = tk.StringVar(root)
     selected_mag.set("50X")
     mag_dropdown = tk.OptionMenu(root, selected_mag, *dropdown_magnifications)
-    mag_dropdown.pack(padx=20, pady=20)
+    mag_dropdown.pack(side=tk.LEFT, anchor=tk.N,padx=20,pady=20)
 
-    mag_text = tk.Text(root, height=5, width=40)
-    mag_text.pack(padx=20, pady=20)
+    mag_text = tk.Text(root, height=1, width=30)
+    mag_text.pack(side=tk.LEFT,anchor=tk.N,padx=20,pady=20)
 
     line_button = tk.Button(root,text="Analyse Line Thickness", command=analyse_line_thickness, anchor="center")
-    line_button.pack(padx=20,pady=20)
+    line_button.pack(anchor=tk.N,padx=20,pady=20)
 
     void_button = tk.Button(root,text="Analyse Void Fraction", command=analyse_void_fraction, anchor="center")
-    void_button.pack(padx=20,pady=20)
+    void_button.pack(anchor=tk.N,padx=20,pady=20)
 
     profile_button = tk.Button(root,text="Analyse Finger Profile", command=analyse_finger_profile, anchor="center")
-    profile_button.pack(padx=20,pady=20)
+    profile_button.pack(anchor=tk.N,padx=20,pady=20)
 
     rn_button = tk.Button(root,text="Analyse DEM Resistance", command=analyse_dem_resistance, anchor="center")
-    rn_button.pack(padx=20,pady=20)
+    rn_button.pack(side=tk.TOP,padx=20,pady=20)
     
     root.mainloop()
 
