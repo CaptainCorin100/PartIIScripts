@@ -5,7 +5,7 @@ from tkinter import filedialog
 import numpy as np
 import matplotlib.pyplot as plt
 import imutils
-import x3p
+from surfalize import Surface
 import vtk
 import networkx as nx
 
@@ -222,12 +222,12 @@ def analyse_void_fraction():
     plt.show()
 
 def analyse_finger_profile():
-    file_path = filedialog.askopenfilename(filetypes=[("Heightmap Data", "*.x3p")])
+    file_path = filedialog.askopenfilename(filetypes=[("Heightmap Data", "*.nms")])
     print(file_path)
-    x3pFile = x3p.X3Pfile(file_path)
-
+    #x3pFile = x3p.X3Pfile(file_path)
+    nmsFile = Surface.load(file_path)
     # plt.pcolormesh(x3pFile[:,:,0])
-    # plt.show()
+    nmsFile.show()
 
 def analyse_dem_resistance():
     file_path = filedialog.askopenfilename(filetypes=[("VTK", "*.vtk")])
