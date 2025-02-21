@@ -248,6 +248,8 @@ def analyse_dem_resistance():
 
     G = nx.Graph()
 
+    
+
     for i in range(len(point_array)):
         G.add_node(i, position=point_array[i], radius=radius_array[i])
         
@@ -263,6 +265,19 @@ def analyse_dem_resistance():
                 G.add_edge(i, j, resistance=dist)
     
     #nx.draw(G)
+
+    R_eff = nx.effective_graph_resistance(G, weight="resistance", invert_weight=True)
+    print("Effective resistance is {} ohms.".format(R_eff))
+    
+    max_node = max(G.nodes(data=True), key=lambda x:x[1]["position"][1])
+    min_node = min(G.nodes(data=True), key=lambda x:x[1]["position"][1])
+
+    
+    resistance_dist = nx.resistance_distance(G, max_node[0], min_node[0], weight="resistance", invert_weight=True)
+
+    print ("Resistance between nodes {} and {} is {}.".format(max_node,min_node,resistance_dist))
+    
+    
 
 
 
