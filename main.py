@@ -242,7 +242,8 @@ def analyse_dem_resistance():
     point_array = np.array([point_list.GetPoint(i) for i in range(poly_data.GetNumberOfPoints())])
     radius_array = np.array([radius_list.GetValue(i) for i in range(poly_data.GetNumberOfPoints())])
     print(point_array[0])
-    contact_factor = 1.1
+    contact_factor = 1
+    copper_resistivity = 1.68e-8
 
     print(len(radius_array))
 
@@ -261,8 +262,11 @@ def analyse_dem_resistance():
 
             contact_dist = contact_factor * (radius_array[i] + radius_array[j])
 
-            if dist < contact_dist:
-                G.add_edge(i, j, resistance=dist)
+            if dist <= contact_dist:
+                area_overlap = np.pi * ((radius_array[i]**2) - (((dist**2 - radius_array[j]**2 + radius_array[i]**2)**2 ) / (4 * dist**2)))
+                resist = copper_resistivity*(contact_dist-dist)/area_overlap
+                print("Contact distance: {}, Resistance: {}".format(contact_dist, resist))
+                G.add_edge(i, j, resistance=resist)
     
     #nx.draw(G)
 
