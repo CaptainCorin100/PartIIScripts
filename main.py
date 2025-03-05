@@ -264,22 +264,27 @@ def analyse_dem_resistance():
 
             if dist <= contact_dist:
                 area_overlap = np.pi * ((radius_array[i]**2) - (((dist**2 - radius_array[j]**2 + radius_array[i]**2)**2 ) / (4 * dist**2)))
-                resist = copper_resistivity*(contact_dist-dist)/area_overlap
+
+                area_resist = copper_resistivity*(contact_dist-dist)/area_overlap
+                #length_resist = copper_resistivity*dist/
+                resist = area_resist
+
+
                 print("Contact distance: {}, Resistance: {}".format(contact_dist, resist))
                 G.add_edge(i, j, resistance=resist)
     
     #nx.draw(G)
 
-    R_eff = nx.effective_graph_resistance(G, weight="resistance", invert_weight=True)
-    print("Effective resistance is {} ohms.".format(R_eff))
+    # R_eff = nx.effective_graph_resistance(G, weight="resistance", invert_weight=True)
+    # print("Effective resistance is {} ohms.".format(R_eff))
     
     max_node = max(G.nodes(data=True), key=lambda x:x[1]["position"][1])
     min_node = min(G.nodes(data=True), key=lambda x:x[1]["position"][1])
-
+    dist = np.linalg.norm(max_node["position"] - min_node["position"])
     
     resistance_dist = nx.resistance_distance(G, max_node[0], min_node[0], weight="resistance", invert_weight=True)
 
-    print ("Resistance between nodes {} and {} is {}.".format(max_node,min_node,resistance_dist))
+    print ("Resistance between nodes {} and {} is {} ohm/cm.".format(max_node,min_node,resistance_dist/(100 * dist)))
     
     
 
