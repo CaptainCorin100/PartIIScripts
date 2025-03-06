@@ -221,6 +221,8 @@ def analyse_void_fraction():
     plt.savefig("temp.png", transparent=True)
     plt.show()
 
+
+
 def analyse_finger_profile():
     file_path = filedialog.askopenfilename(filetypes=[("Heightmap Data", "*.nms")])
     print(file_path)
@@ -228,6 +230,8 @@ def analyse_finger_profile():
     nmsFile = Surface.load(file_path)
     # plt.pcolormesh(x3pFile[:,:,0])
     nmsFile.show()
+
+
 
 def analyse_dem_resistance():
     file_path = filedialog.askopenfilename(filetypes=[("VTK", "*.vtk")])
@@ -284,12 +288,9 @@ def analyse_dem_resistance():
     
     resistance_dist = nx.resistance_distance(G, max_node[0], min_node[0], weight="resistance", invert_weight=True)
 
-    print ("Resistance between nodes {} and {} is {} ohm/cm, over a length of {} cm.".format(max_node,min_node,resistance_dist/(100 * dist), 100 * dist))
+    print ("Resistance between nodes {} and {} is {} ohm/cm, over a length of {} cm.".format(max_node[0],min_node[0],resistance_dist/(100 * dist), 100 * dist))
     
     
-
-
-
 
 def calculate_void_fraction (numbers, radii):
     cubed_r = [r**3 for r in radii]
