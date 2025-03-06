@@ -280,11 +280,11 @@ def analyse_dem_resistance():
     
     max_node = max(G.nodes(data=True), key=lambda x:x[1]["position"][1])
     min_node = min(G.nodes(data=True), key=lambda x:x[1]["position"][1])
-    dist = np.linalg.norm(max_node["position"] - min_node["position"])
+    dist = np.linalg.norm(max_node[1]["position"] - min_node[1]["position"])
     
     resistance_dist = nx.resistance_distance(G, max_node[0], min_node[0], weight="resistance", invert_weight=True)
 
-    print ("Resistance between nodes {} and {} is {} ohm/cm.".format(max_node,min_node,resistance_dist/(100 * dist)))
+    print ("Resistance between nodes {} and {} is {} ohm/cm, over a length of {} cm.".format(max_node,min_node,resistance_dist/(100 * dist), 100 * dist))
     
     
 
