@@ -154,7 +154,7 @@ def analyse_line_thickness():
 
 
 def analyse_void_fraction():
-    file_path = filedialog.askopenfilename(filetypes=[("JPEG images", "*.jpg")])
+    file_path = filedialog.askopenfilename(filetypes=[("Images", ["*.jpg", "*.png"])])
     print(file_path)
 
     #Turn image into black and white
