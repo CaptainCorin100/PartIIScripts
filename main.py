@@ -309,7 +309,6 @@ def convert_pixel_to_micron(value):
     elif selected_mag.get() == "10X":
         return abs((value*100/386.4))
     elif selected_mag.get() == "Custom pixel count for 10 um":
-        print(float(mag_text.get("1.0", "end")))
         return abs(value*10/float(mag_text.get("1.0", "end")))
 
 if __name__ == "__main__":
