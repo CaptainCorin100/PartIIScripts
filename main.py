@@ -202,7 +202,7 @@ def analyse_void_fraction():
     point_indices = range(len(point_count), 0, -1)
 
     #fig = plt.figure()
-    plt.scatter(point_count, point_indices)
+    plt.plot(point_count, point_indices)
     # plt.imshow(imutils.opencv2matplotlib(resized))
     plt.ylabel("Finger Height (px)", fontsize=20)
     plt.xlabel("Void Fraction (%)", fontsize=20)
