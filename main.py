@@ -208,7 +208,7 @@ def analyse_void_fraction():
     plt.xlabel("Void Fraction (%)", fontsize=20)
     plt.xticks(fontsize=20)
     plt.yticks(fontsize=20)
-    plt.xlim(0,45)
+    plt.xlim(0,max(point_count))
     plt.rcParams['font.family'] = 'sans-serif'
     plt.rcParams['font.sans-serif'] = ['Arial']
     plt.tight_layout()
