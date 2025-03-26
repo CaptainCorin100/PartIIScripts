@@ -202,13 +202,16 @@ def analyse_void_fraction():
     point_indices = range(len(point_count), 0, -1)
 
     #fig = plt.figure()
-    plt.plot(point_count, point_indices)
+    plt.plot(point_count, point_indices, linewidth=5)
     # plt.imshow(imutils.opencv2matplotlib(resized))
-    plt.ylabel("Finger Height (px)", fontsize=20)
-    plt.xlabel("Void Fraction (%)", fontsize=20)
-    plt.xticks(fontsize=20)
-    plt.yticks(fontsize=20)
-    plt.xlim(0,max(point_count))
+
+    void_font = 30
+
+    plt.ylabel("Height (px)", fontsize=void_font)
+    plt.xlabel("Void \n Fraction (%)", fontsize=void_font)
+    plt.xticks(fontsize=void_font)
+    plt.yticks(fontsize=void_font)
+    plt.xlim(min(point_count),max(point_count))
     plt.rcParams['font.family'] = 'sans-serif'
     plt.rcParams['font.sans-serif'] = ['Arial']
     plt.tight_layout()

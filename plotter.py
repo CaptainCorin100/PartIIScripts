@@ -5,7 +5,7 @@ import numpy as np
 
 
 def main():
-    for data_name in ["Under-sintered", "Over-sintered"]:
+    for data_name in [1,2,3]:
         print("staet")
         file_path = filedialog.askopenfilename(filetypes=[("{} CSV".format(data_name), "*.csv")])
         depths = []
@@ -28,13 +28,13 @@ def main():
         print("yep")
 
 
-    plt.ylabel("Counts", fontsize=20)
+    plt.ylabel(r"EDX O K$\alpha_1$ Counts", fontsize=20)
     plt.xlabel("Height (μm)", fontsize=20)
     plt.xticks(fontsize=20)
     plt.yticks(fontsize=20)
     plt.rcParams['font.family'] = 'sans-serif'
     plt.rcParams['font.sans-serif'] = ['Arial']
-    plt.legend(["Under-sintered", "Undersintered Fit", "Over-sintered", "Oversintered Fit"])
+    plt.legend(["Under-sintered", "Undersintered Fit", "Over-sintered", "Oversintered Fit"], fontsize=20, bbox_to_anchor=(1.04, 1), loc="upper left")
     plt.show()
 
 
